@@ -1,4 +1,4 @@
-#include "include/hashtable.h"
+#include "../include/hashtable.h"
 
 #include <cstdint>
 #include <iostream>
@@ -36,7 +36,7 @@ std::vector<std::string> make_rand_vec(size_t vec_size, size_t str_size)
     return v;
 }
 
-constexpr size_t VEC_SIZE = 64;
+constexpr size_t VEC_SIZE = 256;
 constexpr size_t STR_SIZE_LONG = 32;
 constexpr size_t STR_SIZE_SHORT = 32;
 
