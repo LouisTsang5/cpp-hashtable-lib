@@ -36,6 +36,11 @@ private:
             assert(used());
             return m_key;
         }
+        [[nodiscard]] constexpr size_t hash() const noexcept
+        {
+            assert(used());
+            return m_hash;
+        }
         [[nodiscard]] constexpr K &key() noexcept
         {
             assert(used());
@@ -47,16 +52,18 @@ private:
             return m_val;
         }
         template <typename KK, typename VV>
-        constexpr std::optional<std::pair<K, V>> emplace(KK &&k, VV &&v) noexcept
+        constexpr std::optional<std::pair<K, V>> emplace(size_t hash, KK &&k, VV &&v) noexcept
         {
             std::optional<std::pair<K, V>> retval = used() ? std::optional(std::pair<K, V>(std::move(m_key), std::move(m_val))) : std::nullopt;
             m_type = Type::Used;
             m_key = std::forward<KK>(k);
             m_val = std::forward<VV>(v);
+            m_hash = hash;
             return retval;
         }
 
     private:
+        size_t m_hash;
         Type m_type;
         K m_key;
         V m_val;
@@ -162,9 +169,9 @@ private:
     [[nodiscard]] static constexpr float load_factor(size_t size, size_t cap) noexcept { return static_cast<float>(size) / static_cast<float>(cap); }
 
     // Returns a position of a slot that either matches the key or a usable slot
-    [[nodiscard]] inline std::optional<Slot *> find_slot(const K &key) noexcept
+    [[nodiscard]] inline std::optional<Slot *> find_slot(const size_t hash, const K &key) noexcept
     {
-        const size_t org_ipos = m_hasher(key) % capacity();
+        const size_t org_ipos = hash % capacity();
         size_t ipos = org_ipos;
 
         // Optional Deleted Slot
@@ -176,17 +183,17 @@ private:
             // Define slot
             Slot &s = m_table[ipos];
 
+            // Return if slot is empty
+            if (s.empty())
+                return first_del_slot ? first_del_slot : &s; // Reuse deleted slot if found
+
             // Set first deleted slot if it is null
             if (!first_del_slot && s.deleted())
                 first_del_slot.emplace(&s);
 
             // Return if key is the same
-            if (s.used() && s.key() == key)
+            if (s.used() && s.hash() == hash && s.key() == key)
                 return &s;
-
-            // Return if slot is empty
-            if (s.empty())
-                return first_del_slot ? first_del_slot : &s; // Reuse deleted slot if found
 
             // Increment cursor
             ipos = (ipos + 1) % capacity();
@@ -209,9 +216,9 @@ private:
         size_t new_size = 0;
         for (Slot &other_s : other_table.key_values())
         {
-            auto new_s = find_slot(other_s.ckey());
+            auto new_s = find_slot(other_s.hash(), other_s.ckey());
             assert(new_s.has_value());
-            new_s.value()->emplace(std::move(other_s.key()), std::move(other_s.val()));
+            new_s.value()->emplace(other_s.hash(), std::move(other_s.key()), std::move(other_s.val()));
             new_size += 1;
         }
         m_size = new_size;
@@ -237,15 +244,17 @@ public:
         }
 
         // Hash & insert
-        auto i = find_slot(key);
+        const size_t hash = m_hasher(key);
+        auto i = find_slot(hash, key);
         assert(i.has_value());
-        i.value()->emplace(std::forward<KK>(key), std::forward<VV>(val));
+        i.value()->emplace(hash, std::forward<KK>(key), std::forward<VV>(val));
         m_size += 1;
     }
 
     std::optional<V *> find(const K &key) noexcept
     {
-        std::optional<Slot *> os = find_slot(key);
+        const size_t hash = m_hasher(key);
+        std::optional<Slot *> os = find_slot(hash, key);
         if (!os)
             return std::nullopt;
         Slot *s = os.value();
