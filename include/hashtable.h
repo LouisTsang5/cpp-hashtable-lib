@@ -1,9 +1,9 @@
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <optional>
 #include <utility>
 #include <variant>
-#include <iostream>
 
 // Open Address Hash Table
 constexpr size_t HASH_TABLE_INIT_SIZE = 64;
