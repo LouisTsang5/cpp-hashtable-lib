@@ -59,7 +59,7 @@ int main()
         v_copy.emplace_back(s);
     }
 
-    HashTable<std::string, std::string_view> m;
+    HashTable::HashTable<std::string, std::string_view> m;
     for (size_t i = 0; i < v.size(); i++)
     {
         const std::string &cstr = v[i];
