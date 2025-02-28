@@ -25,8 +25,6 @@ private:
 
         // ctors
         constexpr Slot() noexcept : m_type(Type::Empty) {}
-        template <typename KK, typename VV>
-        constexpr Slot(KK &&k, VV &&v) noexcept : m_type(Type::Used), m_key(std::forward<KK>(k)), m_val(std::forward<VV>(v)) {}
 
         // member functions
         [[nodiscard]] constexpr Type type() const noexcept { return m_type; }
