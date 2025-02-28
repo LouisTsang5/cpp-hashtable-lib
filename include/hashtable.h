@@ -183,17 +183,21 @@ private:
             // Define slot
             Slot &s = m_table[ipos];
 
-            // Return if slot is empty
-            if (s.empty())
+            switch (s.type())
+            {
+            case Slot::Type::Empty:                          // Return if slot is empty
                 return first_del_slot ? first_del_slot : &s; // Reuse deleted slot if found
-
-            // Set first deleted slot if it is null
-            if (!first_del_slot && s.deleted())
-                first_del_slot.emplace(&s);
-
-            // Return if key is the same
-            if (s.used() && s.hash() == hash && s.key() == key)
-                return &s;
+            case Slot::Type::Deleted:                        // Set first deleted slot if it is null
+                if (!first_del_slot)
+                    first_del_slot.emplace(&s);
+                break;
+            case Slot::Type::Used: // Return if key is the same
+                if (s.hash() == hash && s.ckey() == key)
+                    return &s;
+                break;
+            default:
+                __builtin_unreachable();
+            }
 
             // Increment cursor
             ipos = (ipos + 1) % capacity();
