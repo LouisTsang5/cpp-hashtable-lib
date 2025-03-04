@@ -237,6 +237,7 @@ namespace HashTable
         // getters
         [[nodiscard]] constexpr size_t capacity() const noexcept { return m_table.size(); }
         [[nodiscard]] constexpr size_t size() const noexcept { return m_size; }
+        [[nodiscard]] constexpr KVIter key_values() noexcept { return m_table.key_values(); }
 
         // functions
         template <typename KK, typename VV>
