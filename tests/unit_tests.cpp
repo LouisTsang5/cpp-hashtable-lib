@@ -1,4 +1,4 @@
-#include "../include/hashtable.h"
+#include "/hashtable.h"
 
 #include <cstdint>
 #include <iostream>
