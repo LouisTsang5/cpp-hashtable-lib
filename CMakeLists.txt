@@ -23,9 +23,17 @@ option(RUN_TESTS "Build and run tests" OFF)
 if(RUN_TESTS)
     # Include CTest
     include(CTest)
+    set(TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
+
+    # Define add test routine
+    function(define_test TEST_NAME)
+        add_executable(${TEST_NAME} ${TEST_DIR}/${TEST_NAME}.cpp)
+        target_include_directories(${TEST_NAME} PRIVATE ${TEST_DIR}/include)
+        target_link_libraries(${TEST_NAME} PRIVATE hashtable)
+        add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+    endfunction()
 
     # Add unit tests
-    add_executable(unit_tests tests/unit_tests.cpp)
-    target_link_libraries(unit_tests PRIVATE hashtable)
-    add_test(NAME unit_tests COMMAND unit_tests)
+    define_test(lookup_test)
+    define_test(insertion_test)
 endif()
