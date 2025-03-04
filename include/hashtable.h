@@ -8,9 +8,9 @@
 namespace HashTable
 {
     // Open Address Hash Table
-    constexpr size_t HASH_TABLE_INIT_SIZE = 64;
-    constexpr float HASH_TABLE_GROW_FACTOR = 1.5;
-    constexpr float HASH_TABLE_MAX_LOAD_FACTOR = 0.5;
+    constexpr size_t HASH_TABLE_INIT_SIZE = 2;
+    constexpr float HASH_TABLE_GROW_FACTOR = 2;
+    constexpr float HASH_TABLE_MAX_LOAD_FACTOR = 0.7;
     template <typename K, typename V>
     class HashTable
     {
