@@ -38,6 +38,11 @@ namespace HashTable
                 assert(used());
                 return m_key;
             }
+            [[nodiscard]] constexpr const V &cval() const noexcept
+            {
+                assert(used());
+                return m_val;
+            }
             [[nodiscard]] constexpr size_t hash() const noexcept
             {
                 assert(used());
