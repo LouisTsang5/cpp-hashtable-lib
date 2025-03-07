@@ -37,3 +37,16 @@ if(RUN_TESTS)
     define_test(lookup_test)
     define_test(insertion_test)
 endif()
+
+# Run Benchmark
+option(RUN_BENCHMARK "Build and run benchmark" OFF)
+if(RUN_BENCHMARK)
+    set(BM_DIR ${CMAKE_SOURCE_DIR}/benchmark)
+    set(EX_LIB_DIR ${CMAKE_SOURCE_DIR}/extern)
+    set(BM benchmark)
+
+    add_executable(${BM} ${BM_DIR}/${BM}.cpp)
+    target_include_directories(${BM} PRIVATE ${EX_LIB_DIR})
+    target_link_libraries(${BM} PRIVATE hashtable ${EX_LIB_DIR}/benchmark/libbenchmark.a)
+    add_custom_command(TARGET ${BM} POST_BUILD COMMAND ${BM})
+endif()
