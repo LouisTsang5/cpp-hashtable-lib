@@ -88,14 +88,14 @@ namespace HashTable
                 constexpr void next() noexcept
                 {
                     m_cur += 1;
-                    while (!m_cur->used() && m_cur < m_end)
+                    while (m_cur < m_end && !m_cur->used())
                         m_cur += 1;
                 }
 
             public:
                 constexpr Inner(Slot *c, Slot *e) noexcept : m_cur(c), m_end(e)
                 {
-                    while (!m_cur->used() && m_cur < m_end)
+                    while (m_cur < m_end && !m_cur->used())
                         m_cur += 1;
                 }
                 constexpr Slot &operator*() const noexcept
