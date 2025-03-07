@@ -255,12 +255,16 @@ namespace HashTable
                 rehash(new_cap);
             }
 
-            // Hash & insert
+            // Hash & find slot
             const size_t hash = m_hasher(key);
             auto i = find_slot(hash, key);
             assert(i.has_value());
-            i.value()->emplace(hash, std::forward<KK>(key), std::forward<VV>(val));
-            m_size += 1;
+
+            // Insert & update size
+            Slot *s = i.value();
+            if (!s->used()) // No need to increse size if using the same key slot
+                m_size += 1;
+            s->emplace(hash, std::forward<KK>(key), std::forward<VV>(val));
         }
 
         std::optional<V *> find(const K &key) noexcept
