@@ -31,8 +31,7 @@ int main()
 
         // Assert the previous value is perserved
         assert(before.has_value());
-        assert(before.value().first == key);
-        assert(before.value().second == vval_before[i]);
+        assert(before.value() == vval_before[i]);
     }
 
     // Assert all keys & values can be found

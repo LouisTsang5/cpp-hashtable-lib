@@ -58,15 +58,24 @@ namespace HashTable
                 assert(used());
                 return m_val;
             }
+
             template <typename KK, typename VV>
-            constexpr std::optional<std::pair<K, V>> emplace(size_t hash, KK &&k, VV &&v) noexcept
+            constexpr void emplace(size_t hash, KK &&k, VV &&v) noexcept
             {
-                std::optional<std::pair<K, V>> retval = used() ? std::optional(std::pair<K, V>(std::move(m_key), std::move(m_val))) : std::nullopt;
+                assert(!used());
                 m_type = Type::Used;
                 m_key = std::forward<KK>(k);
                 m_val = std::forward<VV>(v);
                 m_hash = hash;
-                return retval;
+            }
+
+            template <typename VV>
+            constexpr V replace(VV &&new_val) noexcept
+            {
+                assert(used());
+                V old_val = std::move(m_val);
+                m_val = std::forward<VV>(new_val);
+                return old_val;
             }
 
         private:
@@ -246,7 +255,7 @@ namespace HashTable
 
         // functions
         template <typename KK, typename VV>
-        std::optional<std::pair<K, V>> emplace(KK &&key, VV &&val) noexcept
+        std::optional<V> emplace(KK &&key, VV &&val) noexcept
         {
             // Rehash if over load factor limit
             if (load_factor(m_size + 1, capacity()) >= HASH_TABLE_MAX_LOAD_FACTOR)
@@ -262,9 +271,22 @@ namespace HashTable
 
             // Insert & update size
             Slot *s = i.value();
-            if (!s->used()) // No need to increse size if using the same key slot
+
+            if (s->empty()) // Only increase the size if using an empty slot
                 m_size += 1;
-            return s->emplace(hash, std::forward<KK>(key), std::forward<VV>(val));
+
+            if (s->used())
+            {
+                // Replace and return old value if slot is used
+                V old = s->replace(std::forward<VV>(val));
+                return old;
+            }
+            else
+            {
+                // Emplace if slot is not used
+                s->emplace(hash, std::forward<KK>(key), std::forward<VV>(val));
+                return std::nullopt;
+            }
         }
 
         std::optional<V *> find(const K &key) noexcept
