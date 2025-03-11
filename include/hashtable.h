@@ -246,7 +246,7 @@ namespace HashTable
 
         // functions
         template <typename KK, typename VV>
-        void emplace(KK &&key, VV &&val) noexcept
+        std::optional<std::pair<K, V>> emplace(KK &&key, VV &&val) noexcept
         {
             // Rehash if over load factor limit
             if (load_factor(m_size + 1, capacity()) >= HASH_TABLE_MAX_LOAD_FACTOR)
@@ -264,7 +264,7 @@ namespace HashTable
             Slot *s = i.value();
             if (!s->used()) // No need to increse size if using the same key slot
                 m_size += 1;
-            s->emplace(hash, std::forward<KK>(key), std::forward<VV>(val));
+            return s->emplace(hash, std::forward<KK>(key), std::forward<VV>(val));
         }
 
         std::optional<V *> find(const K &key) noexcept
