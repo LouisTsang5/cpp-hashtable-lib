@@ -65,6 +65,28 @@ BENCHMARK(BM_LongStringMapInserion);
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+static void BM_LongStringViewHashTableInserion(benchmark::State &state)
+{
+    const auto v = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
+    HashTable::HashTable<std::string_view, std::string_view> m;
+    for (auto _ : state)
+        for (const std::string &s : v)
+            m.emplace(s, s);
+}
+BENCHMARK(BM_LongStringViewHashTableInserion);
+
+static void BM_LongStringHashTableInserion(benchmark::State &state)
+{
+    const auto v = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
+    HashTable::HashTable<std::string, std::string_view> m;
+    for (auto _ : state)
+        for (const std::string &s : v)
+            m.emplace(s, s);
+}
+BENCHMARK(BM_LongStringHashTableInserion);
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 static void BM_ShortStringViewMapInserion(benchmark::State &state)
 {
     const auto v = make_rand_vec(VEC_SIZE, STR_SIZE_SHORT);
@@ -206,5 +228,105 @@ static void BM_Long_String_HashTableLookup(benchmark::State &state)
         }
 }
 BENCHMARK(BM_Long_String_HashTableLookup);
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+static void BM_Short_StringView_MapLookup(benchmark::State &state)
+{
+    // Setup
+    const auto v1 = make_rand_vec(VEC_SIZE, STR_SIZE_SHORT);
+    const auto v2 = make_rand_vec(VEC_SIZE, STR_SIZE_SHORT);
+    std::unordered_map<std::string_view, std::string_view> m;
+    for (size_t i = 0; i < v1.size(); i++)
+    {
+        const std::string &s1 = v1.at(i);
+        const std::string &s2 = v2.at(i);
+        m.emplace(s1, s2);
+    }
+
+    for (auto _ : state)
+        for (size_t i = 0; i < v1.size(); i++)
+        {
+            const std::string &s = v1.at(i);
+            const auto val = m.find(s);
+            assert(val != m.end());
+            assert((*val).second == v2.at(i));
+        }
+}
+BENCHMARK(BM_Short_StringView_MapLookup);
+
+static void BM_Short_String_MapLookup(benchmark::State &state)
+{
+    // Setup
+    const auto v1 = make_rand_vec(VEC_SIZE, STR_SIZE_SHORT);
+    const auto v2 = make_rand_vec(VEC_SIZE, STR_SIZE_SHORT);
+    std::unordered_map<std::string, std::string_view> m;
+    for (size_t i = 0; i < v1.size(); i++)
+    {
+        const std::string &s1 = v1.at(i);
+        const std::string &s2 = v2.at(i);
+        m.emplace(s1, s2);
+    }
+
+    for (auto _ : state)
+        for (size_t i = 0; i < v1.size(); i++)
+        {
+            const std::string &s = v1.at(i);
+            const auto val = m.find(s);
+            assert(val != m.end());
+            assert((*val).second == v2.at(i));
+        }
+}
+BENCHMARK(BM_Short_String_MapLookup);
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+static void BM_Short_StringView_HashTableLookup(benchmark::State &state)
+{
+    // Setup
+    const auto v1 = make_rand_vec(VEC_SIZE, STR_SIZE_SHORT);
+    const auto v2 = make_rand_vec(VEC_SIZE, STR_SIZE_SHORT);
+    HashTable::HashTable<std::string_view, std::string_view> m;
+    for (size_t i = 0; i < v1.size(); i++)
+    {
+        const std::string &s1 = v1.at(i);
+        const std::string &s2 = v2.at(i);
+        m.emplace(s1, s2);
+    }
+
+    for (auto _ : state)
+        for (size_t i = 0; i < v1.size(); i++)
+        {
+            const std::string &s = v1.at(i);
+            const auto val = m.find(s);
+            assert(val);
+            assert(*val.value() == v2.at(i));
+        }
+}
+BENCHMARK(BM_Short_StringView_HashTableLookup);
+
+static void BM_Short_String_HashTableLookup(benchmark::State &state)
+{
+    // Setup
+    const auto v1 = make_rand_vec(VEC_SIZE, STR_SIZE_SHORT);
+    const auto v2 = make_rand_vec(VEC_SIZE, STR_SIZE_SHORT);
+    HashTable::HashTable<std::string, std::string_view> m;
+    for (size_t i = 0; i < v1.size(); i++)
+    {
+        const std::string &s1 = v1.at(i);
+        const std::string &s2 = v2.at(i);
+        m.emplace(s1, s2);
+    }
+
+    for (auto _ : state)
+        for (size_t i = 0; i < v1.size(); i++)
+        {
+            const std::string &s = v1.at(i);
+            const auto val = m.find(s);
+            assert(val);
+            assert(*val.value() == v2.at(i));
+        }
+}
+BENCHMARK(BM_Short_String_HashTableLookup);
 
 BENCHMARK_MAIN();
