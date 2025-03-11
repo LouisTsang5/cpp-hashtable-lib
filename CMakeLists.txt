@@ -34,8 +34,11 @@ if(RUN_TESTS)
     endfunction()
 
     # Add unit tests
-    define_test(lookup_test)
+    define_test(kv_copy_test)
+    define_test(kv_move_test)
     define_test(insertion_test)
+    define_test(update_test)
+    define_test(lookup_test)
 endif()
 
 # Run Benchmark
