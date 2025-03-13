@@ -39,6 +39,7 @@ if(RUN_TESTS)
     define_test(insertion_test)
     define_test(update_test)
     define_test(lookup_test)
+    define_test(remove_test)
 endif()
 
 # Run Benchmark

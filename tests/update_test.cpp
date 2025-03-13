@@ -11,7 +11,7 @@ int main()
 {
     auto vkey = make_rand_vec(VEC_SIZE, STR_SIZE);
     const auto vval_before = make_rand_vec(VEC_SIZE, STR_SIZE);
-    auto vval_after = make_rand_vec(VEC_SIZE, STR_SIZE);
+    auto vval_after = make_rand_vec(VEC_SIZE, STR_SIZE, vval_before);
     HashTable::HashTable<std::string, std::string_view> m;
 
     // Insert into map

@@ -23,7 +23,36 @@ std::vector<std::string> make_rand_vec(size_t vec_size, size_t str_size)
     std::vector<std::string> v;
     v.reserve(vec_size);
     for (size_t i = 0; i < vec_size; i++)
-        v.push_back(generateRandomString(str_size));
+    {
+        while (true)
+        {
+            std::string str = generateRandomString(str_size);
+            if (std::find(v.cbegin(), v.cend(), str) != v.cend())
+                continue;
+            v.push_back(std::move(str));
+            break;
+        }
+    }
+    return v;
+}
+
+std::vector<std::string> make_rand_vec(size_t vec_size, size_t str_size, const std::vector<std::string> &exclude)
+{
+    std::vector<std::string> v;
+    v.reserve(vec_size);
+    for (size_t i = 0; i < vec_size; i++)
+    {
+        while (true)
+        {
+            std::string str = generateRandomString(str_size);
+            if (std::find(v.cbegin(), v.cend(), str) != v.cend())
+                continue;
+            if (std::find(exclude.cbegin(), exclude.cend(), str) != exclude.cend())
+                continue;
+            v.push_back(std::move(str));
+            break;
+        }
+    }
     return v;
 }
 
