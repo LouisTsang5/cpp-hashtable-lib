@@ -78,6 +78,13 @@ namespace HashTable
                 return old_val;
             }
 
+            constexpr std::pair<K, V> extract() noexcept
+            {
+                assert(used());
+                m_type = Type::Deleted;
+                return std::pair(std::move(m_key), std::move(m_val));
+            }
+
         private:
             size_t m_hash;
             Type m_type;
@@ -302,6 +309,19 @@ namespace HashTable
                 return static_cast<V *>(&s->val());
         }
 
-        // TODO: Remove function
+        std::optional<std::pair<K, V>> remove(const K &key) noexcept
+        {
+            // Find the slot
+            std::optional<Slot *> os = find_slot(m_hasher(key), key);
+            assert(os.has_value());
+            Slot *s = os.value();
+
+            // If slot is empty, return null
+            if (!s->used())
+                return std::nullopt;
+
+            // Extract and return the key & value
+            return s->extract();
+        }
     };
 }
