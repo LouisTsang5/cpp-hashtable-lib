@@ -46,10 +46,33 @@ option(RUN_BENCHMARK "Build and run benchmark" OFF)
 if(RUN_BENCHMARK)
     set(BM_DIR ${CMAKE_SOURCE_DIR}/benchmark)
     set(EX_LIB_DIR ${CMAKE_SOURCE_DIR}/extern)
-    set(BM benchmark)
 
-    add_executable(${BM} ${BM_DIR}/${BM}.cpp)
-    target_include_directories(${BM} PRIVATE ${EX_LIB_DIR})
-    target_link_libraries(${BM} PRIVATE hashtable ${EX_LIB_DIR}/benchmark/libbenchmark.a)
-    add_custom_command(TARGET ${BM} POST_BUILD COMMAND ${BM})
+    # Define add benchmark routine
+    set(BENCHMARKS)
+    function(define_bm BM_NAME)
+        add_executable(${BM_NAME} ${BM_DIR}/${BM_NAME}.cpp)
+        target_include_directories(${BM_NAME} PRIVATE ${EX_LIB_DIR})
+        target_link_libraries(${BM_NAME} PRIVATE hashtable ${EX_LIB_DIR}/benchmark/libbenchmark.a)
+
+        # Add to parent scope's list
+        list(APPEND BENCHMARKS ${BM_NAME})
+        set(BENCHMARKS ${BENCHMARKS} PARENT_SCOPE)
+    endfunction()
+
+    # Add benchmarks
+    define_bm(benchmark_insertion)
+    define_bm(benchmark_update)
+    define_bm(benchmark_lookup)
+
+    # Add target to run benchmarks
+    add_custom_target(run_bm DEPENDS ${BENCHMARKS})
+    foreach(BM ${BENCHMARKS})
+        add_custom_command(TARGET run_bm
+            POST_BUILD
+            COMMAND ${CMAKE_BINARY_DIR}/${BM}
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            COMMENT "\nRunning ${BM}..."
+        )
+    endforeach()
+    set_target_properties(run_bm PROPERTIES EXCLUDE_FROM_ALL TRUE)
 endif()

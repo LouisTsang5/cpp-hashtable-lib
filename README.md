@@ -46,7 +46,7 @@ cmake -E make_directory "build/benchmark"
 cmake -E chdir "build/benchmark" cmake -DRUN_BENCHMARK=on -DCMAKE_BUILD_TYPE=RELEASE ../../
 
 # Build and run benchmark
-cmake --build "build/benchmark"
+cmake --build "build/benchmark" --target run_bm
 ```
 
 Alternatively, run the [scripts/run_benchmark.sh](scripts/run_benchmark.sh) script to build and test
