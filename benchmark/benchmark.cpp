@@ -47,12 +47,12 @@ std::vector<std::string> make_rand_vec(size_t vec_size, size_t str_size)
 static void BM_LongStringViewMapInserion(benchmark::State &state)
 {
     const auto v = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
-    int i = 0;
-    std::unordered_map<std::string_view, std::string_view> m;
     for (auto _ : state)
     {
-        const std::string &s = v.at(i++ % v.size());
-        m.emplace(s, s);
+        std::vector<std::string> v_copy = v;
+        std::unordered_map<std::string_view, std::string_view> m;
+        for (size_t i = 0; i < v.size(); i++)
+            m.emplace(std::move(v_copy[i]), v[i]);
     }
 }
 BENCHMARK(BM_LongStringViewMapInserion);
@@ -60,12 +60,12 @@ BENCHMARK(BM_LongStringViewMapInserion);
 static void BM_LongStringMapInserion(benchmark::State &state)
 {
     const auto v = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
-    int i = 0;
-    std::unordered_map<std::string, std::string_view> m;
     for (auto _ : state)
     {
-        const std::string &s = v.at(i++ % v.size());
-        m.emplace(s, s);
+        std::vector<std::string> v_copy = v;
+        std::unordered_map<std::string, std::string_view> m;
+        for (size_t i = 0; i < v.size(); i++)
+            m.emplace(std::move(v_copy[i]), v[i]);
     }
 }
 BENCHMARK(BM_LongStringMapInserion);
@@ -75,12 +75,12 @@ BENCHMARK(BM_LongStringMapInserion);
 static void BM_LongStringViewHashTableInserion(benchmark::State &state)
 {
     const auto v = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
-    int i = 0;
-    HashTable::HashTable<std::string_view, std::string_view> m;
     for (auto _ : state)
     {
-        const std::string &s = v.at(i++ % v.size());
-        m.emplace(s, s);
+        std::vector<std::string> v_copy = v;
+        HashTable::HashTable<std::string_view, std::string_view> m;
+        for (size_t i = 0; i < v.size(); i++)
+            m.emplace(std::move(v_copy[i]), v[i]);
     }
 }
 BENCHMARK(BM_LongStringViewHashTableInserion);
@@ -88,12 +88,12 @@ BENCHMARK(BM_LongStringViewHashTableInserion);
 static void BM_LongStringHashTableInserion(benchmark::State &state)
 {
     const auto v = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
-    int i = 0;
-    HashTable::HashTable<std::string, std::string_view> m;
     for (auto _ : state)
     {
-        const std::string &s = v.at(i++ % v.size());
-        m.emplace(s, s);
+        std::vector<std::string> v_copy = v;
+        HashTable::HashTable<std::string, std::string_view> m;
+        for (size_t i = 0; i < v.size(); i++)
+            m.emplace(std::move(v_copy[i]), v[i]);
     }
 }
 BENCHMARK(BM_LongStringHashTableInserion);
@@ -103,12 +103,12 @@ BENCHMARK(BM_LongStringHashTableInserion);
 static void BM_ShortStringViewMapInserion(benchmark::State &state)
 {
     const auto v = make_rand_vec(VEC_SIZE, STR_SIZE_SHORT);
-    int i = 0;
-    std::unordered_map<std::string_view, std::string_view> m;
     for (auto _ : state)
     {
-        const std::string &s = v.at(i++ % v.size());
-        m.emplace(s, s);
+        std::vector<std::string> v_copy = v;
+        std::unordered_map<std::string_view, std::string_view> m;
+        for (size_t i = 0; i < v.size(); i++)
+            m.emplace(std::move(v_copy[i]), v[i]);
     }
 }
 BENCHMARK(BM_ShortStringViewMapInserion);
@@ -116,12 +116,12 @@ BENCHMARK(BM_ShortStringViewMapInserion);
 static void BM_ShortStringMapInserion(benchmark::State &state)
 {
     const auto v = make_rand_vec(VEC_SIZE, STR_SIZE_SHORT);
-    int i = 0;
-    std::unordered_map<std::string, std::string_view> m;
     for (auto _ : state)
     {
-        const std::string &s = v.at(i++ % v.size());
-        m.emplace(s, s);
+        std::vector<std::string> v_copy = v;
+        std::unordered_map<std::string, std::string_view> m;
+        for (size_t i = 0; i < v.size(); i++)
+            m.emplace(std::move(v_copy[i]), v[i]);
     }
 }
 BENCHMARK(BM_ShortStringMapInserion);
@@ -131,12 +131,12 @@ BENCHMARK(BM_ShortStringMapInserion);
 static void BM_ShortStringViewHashTableInserion(benchmark::State &state)
 {
     const auto v = make_rand_vec(VEC_SIZE, STR_SIZE_SHORT);
-    int i = 0;
-    HashTable::HashTable<std::string_view, std::string_view> m;
     for (auto _ : state)
     {
-        const std::string &s = v.at(i++ % v.size());
-        m.emplace(s, s);
+        std::vector<std::string> v_copy = v;
+        HashTable::HashTable<std::string_view, std::string_view> m;
+        for (size_t i = 0; i < v.size(); i++)
+            m.emplace(std::move(v_copy[i]), v[i]);
     }
 }
 BENCHMARK(BM_ShortStringViewHashTableInserion);
@@ -144,12 +144,12 @@ BENCHMARK(BM_ShortStringViewHashTableInserion);
 static void BM_ShortStringHashTableInserion(benchmark::State &state)
 {
     const auto v = make_rand_vec(VEC_SIZE, STR_SIZE_SHORT);
-    int i = 0;
-    HashTable::HashTable<std::string, std::string_view> m;
     for (auto _ : state)
     {
-        const std::string &s = v.at(i++ % v.size());
-        m.emplace(s, s);
+        std::vector<std::string> v_copy = v;
+        HashTable::HashTable<std::string, std::string_view> m;
+        for (size_t i = 0; i < v.size(); i++)
+            m.emplace(std::move(v_copy[i]), v[i]);
     }
 }
 BENCHMARK(BM_ShortStringHashTableInserion);
