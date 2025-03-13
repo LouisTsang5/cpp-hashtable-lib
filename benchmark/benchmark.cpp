@@ -1,6 +1,7 @@
 #include "benchmark/benchmark.h"
 #include "hashtable.h"
 
+#include <array>
 #include <string_view>
 #include <cstdint>
 #include <string>
@@ -153,6 +154,124 @@ static void BM_ShortStringHashTableInserion(benchmark::State &state)
     }
 }
 BENCHMARK(BM_ShortStringHashTableInserion);
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+static void BM_LongStringViewMapUpdate(benchmark::State &state)
+{
+    std::unordered_map<std::string_view, std::string_view> m;
+    const auto vkey = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
+    const auto voval = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
+
+    // Make new values array
+    std::array<std::vector<std::string>, 32> new_val_vecs;
+    for (auto &v : new_val_vecs)
+    {
+        v = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
+    }
+
+    // Construct map
+    for (size_t i = 0; i < vkey.size(); i++)
+        m.emplace(vkey[i], voval[i]);
+
+    size_t i = 0;
+    for (auto _ : state)
+    {
+        std::vector<std::string> &vnval = new_val_vecs[i++ % new_val_vecs.size()];
+        for (size_t i = 0; i < vkey.size(); i++)
+        {
+            auto p = m.find(vkey[i]);
+            p->second = std::move(vnval[i]);
+        }
+    }
+}
+BENCHMARK(BM_LongStringViewMapUpdate);
+
+static void BM_LongStringMapUpdate(benchmark::State &state)
+{
+    std::unordered_map<std::string, std::string_view> m;
+    const auto vkey = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
+    const auto voval = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
+
+    // Make new values array
+    std::array<std::vector<std::string>, 32> new_val_vecs;
+    for (auto &v : new_val_vecs)
+    {
+        v = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
+    }
+
+    // Construct map
+    for (size_t i = 0; i < vkey.size(); i++)
+        m.emplace(vkey[i], voval[i]);
+
+    size_t i = 0;
+    for (auto _ : state)
+    {
+        std::vector<std::string> &vnval = new_val_vecs[i++ % new_val_vecs.size()];
+        for (size_t i = 0; i < vkey.size(); i++)
+        {
+            auto p = m.find(vkey[i]);
+            p->second = std::move(vnval[i]);
+        }
+    }
+}
+BENCHMARK(BM_LongStringMapUpdate);
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+static void BM_LongStringViewHashTableUpdate(benchmark::State &state)
+{
+    HashTable::HashTable<std::string_view, std::string_view> m;
+    const auto vkey = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
+    const auto voval = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
+
+    // Make new values array
+    std::array<std::vector<std::string>, 32> new_val_vecs;
+    for (auto &v : new_val_vecs)
+    {
+        v = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
+    }
+
+    // Construct map
+    for (size_t i = 0; i < vkey.size(); i++)
+        m.emplace(vkey[i], voval[i]);
+
+    size_t i = 0;
+    for (auto _ : state)
+    {
+        std::vector<std::string> &vnval = new_val_vecs[i++ % new_val_vecs.size()];
+        for (size_t i = 0; i < vkey.size(); i++)
+            m.emplace(vkey[i], vnval[i]);
+    }
+}
+BENCHMARK(BM_LongStringViewHashTableUpdate);
+
+static void BM_LongStringHashTableUpdate(benchmark::State &state)
+{
+    HashTable::HashTable<std::string, std::string_view> m;
+    const auto vkey = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
+    const auto voval = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
+
+    // Make new values array
+    std::array<std::vector<std::string>, 32> new_val_vecs;
+    for (auto &v : new_val_vecs)
+    {
+        v = make_rand_vec(VEC_SIZE, STR_SIZE_LONG);
+    }
+
+    // Construct map
+    for (size_t i = 0; i < vkey.size(); i++)
+        m.emplace(vkey[i], voval[i]);
+
+    size_t i = 0;
+    for (auto _ : state)
+    {
+        std::vector<std::string> &vnval = new_val_vecs[i++ % new_val_vecs.size()];
+        for (size_t i = 0; i < vkey.size(); i++)
+            m.emplace(vkey[i], vnval[i]);
+    }
+}
+BENCHMARK(BM_LongStringHashTableUpdate);
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
