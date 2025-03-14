@@ -46,11 +46,6 @@ namespace HashTable
                 assert(used());
                 return m_val;
             }
-            [[nodiscard]] constexpr size_t hash() const noexcept
-            {
-                assert(used());
-                return m_hash;
-            }
             [[nodiscard]] constexpr K &key() noexcept
             {
                 assert(used());
@@ -63,13 +58,12 @@ namespace HashTable
             }
 
             template <typename KK, typename VV>
-            constexpr void emplace(size_t hash, KK &&k, VV &&v) noexcept
+            constexpr void emplace(KK &&k, VV &&v) noexcept
             {
                 assert(!used());
                 m_type = Type::Used;
                 m_key = std::forward<KK>(k);
                 m_val = std::forward<VV>(v);
-                m_hash = hash;
             }
 
             template <typename VV>
@@ -89,7 +83,6 @@ namespace HashTable
             }
 
         private:
-            size_t m_hash;
             Type m_type;
             K m_key;
             V m_val;
@@ -222,7 +215,7 @@ namespace HashTable
                         first_del_slot.emplace(&s);
                     break;
                 case Slot::Type::Used: // Return if key is the same
-                    if (s.hash() == hash && s.ckey() == key)
+                    if (s.ckey() == key)
                         return s;
                     break;
                 default:
@@ -251,8 +244,8 @@ namespace HashTable
             size_t new_size = 0;
             for (Slot &other_s : other_table.key_values())
             {
-                Slot &new_s = find_slot(other_s.hash(), other_s.ckey());
-                new_s.emplace(other_s.hash(), std::move(other_s.key()), std::move(other_s.val()));
+                Slot &new_s = find_slot(m_hasher(other_s.ckey()), other_s.ckey());
+                new_s.emplace(std::move(other_s.key()), std::move(other_s.val()));
                 new_size += 1;
             }
             m_size = new_size;
@@ -281,8 +274,7 @@ namespace HashTable
             }
 
             // Hash & find slot
-            size_t hash = m_hasher(key);
-            Slot &s = find_slot(hash, key);
+            Slot &s = find_slot(m_hasher(key), key);
 
             // Insert & update size
             if (s.used())
@@ -299,7 +291,7 @@ namespace HashTable
                     m_occupancy += 1;
 
                 // Emplace if slot is not used
-                s.emplace(hash, std::forward<KK>(key), std::forward<VV>(val));
+                s.emplace(std::forward<KK>(key), std::forward<VV>(val));
                 return std::nullopt;
             }
         }
