@@ -194,7 +194,7 @@ namespace HashTable
         [[nodiscard]] static constexpr float load_factor(size_t size, size_t cap) noexcept { return static_cast<float>(size) / static_cast<float>(cap); }
 
         // Returns a position of a slot that either matches the key or a usable slot
-        [[nodiscard]] inline std::optional<Slot *> find_slot(const size_t hash, const K &key) noexcept
+        [[nodiscard]] inline Slot &find_slot(const size_t hash, const K &key) noexcept
         {
             const size_t org_ipos = hash % capacity();
             size_t ipos = org_ipos;
@@ -210,15 +210,15 @@ namespace HashTable
 
                 switch (s.type())
                 {
-                case Slot::Type::Empty:                          // Return if slot is empty
-                    return first_del_slot ? first_del_slot : &s; // Reuse deleted slot if found
-                case Slot::Type::Deleted:                        // Set first deleted slot if it is null
+                case Slot::Type::Empty:                                  // Return if slot is empty
+                    return first_del_slot ? *first_del_slot.value() : s; // Reuse deleted slot if found
+                case Slot::Type::Deleted:                                // Set first deleted slot if it is null
                     if (!first_del_slot)
                         first_del_slot.emplace(&s);
                     break;
                 case Slot::Type::Used: // Return if key is the same
                     if (s.hash() == hash && s.ckey() == key)
-                        return &s;
+                        return s;
                     break;
                 default:
                     __builtin_unreachable();
@@ -227,9 +227,8 @@ namespace HashTable
                 // Increment cursor
                 ipos = (ipos + 1) % capacity();
 
-                // Return nullopt if table is full
-                if (ipos == org_ipos)
-                    return std::nullopt;
+                // Safety net, this never happens due to load factor constraint
+                assert(ipos != org_ipos);
             }
         }
 
@@ -245,9 +244,8 @@ namespace HashTable
             size_t new_size = 0;
             for (Slot &other_s : other_table.key_values())
             {
-                auto new_s = find_slot(other_s.hash(), other_s.ckey());
-                assert(new_s.has_value());
-                new_s.value()->emplace(other_s.hash(), std::move(other_s.key()), std::move(other_s.val()));
+                Slot &new_s = find_slot(other_s.hash(), other_s.ckey());
+                new_s.emplace(other_s.hash(), std::move(other_s.key()), std::move(other_s.val()));
                 new_size += 1;
             }
             m_size = new_size;
@@ -274,26 +272,23 @@ namespace HashTable
             }
 
             // Hash & find slot
-            const size_t hash = m_hasher(key);
-            auto i = find_slot(hash, key);
-            assert(i.has_value());
+            size_t hash = m_hasher(key);
+            Slot &s = find_slot(hash, key);
 
             // Insert & update size
-            Slot *s = i.value();
-
-            if (s->empty()) // Only increase the size if using an empty slot
+            if (s.empty()) // Only increase the size if using an empty slot
                 m_size += 1;
 
-            if (s->used())
+            if (s.used())
             {
                 // Replace and return old value if slot is used
-                V old = s->replace(std::forward<VV>(val));
+                V old = s.replace(std::forward<VV>(val));
                 return old;
             }
             else
             {
                 // Emplace if slot is not used
-                s->emplace(hash, std::forward<KK>(key), std::forward<VV>(val));
+                s.emplace(hash, std::forward<KK>(key), std::forward<VV>(val));
                 return std::nullopt;
             }
         }
@@ -301,29 +296,24 @@ namespace HashTable
         std::optional<V *> find(const K &key) noexcept
         {
             const size_t hash = m_hasher(key);
-            std::optional<Slot *> os = find_slot(hash, key);
-            if (!os)
-                return std::nullopt;
-            Slot *s = os.value();
-            if (s->empty() || s->deleted())
+            Slot &s = find_slot(hash, key);
+            if (s.empty() || s.deleted())
                 return std::nullopt;
             else
-                return static_cast<V *>(&s->val());
+                return static_cast<V *>(&s.val());
         }
 
         std::optional<std::pair<K, V>> remove(const K &key) noexcept
         {
             // Find the slot
-            std::optional<Slot *> os = find_slot(m_hasher(key), key);
-            assert(os.has_value());
-            Slot *s = os.value();
+            Slot &s = find_slot(m_hasher(key), key);
 
             // If slot is empty, return null
-            if (!s->used())
+            if (!s.used())
                 return std::nullopt;
 
             // Extract and return the key & value
-            return s->extract();
+            return s.extract();
         }
     };
 }
