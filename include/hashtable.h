@@ -189,6 +189,7 @@ namespace HashTable
         // Member variables
         InnerTable m_table;
         size_t m_size;
+        size_t m_occupancy;
         std::hash<K> m_hasher;
 
         [[nodiscard]] static constexpr float load_factor(size_t size, size_t cap) noexcept { return static_cast<float>(size) / static_cast<float>(cap); }
@@ -254,15 +255,17 @@ namespace HashTable
                 new_size += 1;
             }
             m_size = new_size;
+            m_occupancy = m_size;
         }
 
     public:
         // ctors
-        HashTable() noexcept : m_table(HASH_TABLE_INIT_SIZE), m_size(0) {}
+        HashTable() noexcept : m_table(HASH_TABLE_INIT_SIZE), m_size(0), m_occupancy(0) {}
 
         // getters
         [[nodiscard]] constexpr size_t capacity() const noexcept { return m_table.size(); }
         [[nodiscard]] constexpr size_t size() const noexcept { return m_size; }
+        [[nodiscard]] constexpr size_t occupancy() const noexcept { return m_occupancy; }
         [[nodiscard]] constexpr KVIter key_values() noexcept { return m_table.key_values(); }
 
         // functions
@@ -270,7 +273,7 @@ namespace HashTable
         std::optional<V> emplace(KK &&key, VV &&val) noexcept
         {
             // Rehash if over load factor limit
-            if (load_factor(m_size + 1, capacity()) >= HASH_TABLE_MAX_LOAD_FACTOR)
+            if (load_factor(m_occupancy + 1, capacity()) >= HASH_TABLE_MAX_LOAD_FACTOR)
             {
                 size_t new_cap = static_cast<size_t>(static_cast<float>(capacity()) * HASH_TABLE_GROW_FACTOR);
                 rehash(new_cap);
@@ -281,9 +284,6 @@ namespace HashTable
             Slot &s = find_slot(hash, key);
 
             // Insert & update size
-            if (s.empty()) // Only increase the size if using an empty slot
-                m_size += 1;
-
             if (s.used())
             {
                 // Replace and return old value if slot is used
@@ -292,6 +292,11 @@ namespace HashTable
             }
             else
             {
+                // Only increase the occupancy if using an empty slot
+                m_size += 1;
+                if (s.empty())
+                    m_occupancy += 1;
+
                 // Emplace if slot is not used
                 s.emplace(hash, std::forward<KK>(key), std::forward<VV>(val));
                 return std::nullopt;
@@ -318,6 +323,7 @@ namespace HashTable
                 return std::nullopt;
 
             // Extract and return the key & value
+            m_size -= 1;
             return s.extract();
         }
     };
