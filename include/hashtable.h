@@ -15,6 +15,8 @@ namespace HashTable
     class HashTable
     {
     private:
+        static_assert(HASH_TABLE_MAX_LOAD_FACTOR < 1, "Max load factor must be smaller than 1");
+
         class Slot
         {
         public:
