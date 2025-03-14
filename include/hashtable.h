@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstdint>
 #include <optional>
 #include <utility>
@@ -325,6 +326,18 @@ namespace HashTable
             // Extract and return the key & value
             m_size -= 1;
             return s.extract();
+        }
+
+        // Shrint table to the size that barely fits all keys & values. The next insertion will trigger rehash
+        void shrink_to_fit() noexcept
+        {
+            // Calculate new capacity
+            size_t old_cap = capacity();
+            size_t new_cap = static_cast<size_t>(std::ceil(static_cast<float>(m_size) / HASH_TABLE_MAX_LOAD_FACTOR)); // Round up to the nearest integer
+
+            // rehash to new capacity
+            if (new_cap != old_cap)
+                rehash(new_cap);
         }
     };
 }
