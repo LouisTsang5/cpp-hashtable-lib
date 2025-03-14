@@ -196,8 +196,11 @@ namespace HashTable
         // Returns a position of a slot that either matches the key or a usable slot
         [[nodiscard]] inline Slot &find_slot(const size_t hash, const K &key) noexcept
         {
-            const size_t org_ipos = hash % capacity();
-            size_t ipos = org_ipos;
+            size_t ipos = hash % capacity();
+
+#ifndef NDEBUG
+            const size_t org_ipos = ipos;
+#endif
 
             // Optional Deleted Slot
             std::optional<Slot *> first_del_slot = std::nullopt;
@@ -227,8 +230,10 @@ namespace HashTable
                 // Increment cursor
                 ipos = (ipos + 1) % capacity();
 
+#ifndef NDEBUG
                 // Safety net, this never happens due to load factor constraint
                 assert(ipos != org_ipos);
+#endif
             }
         }
 
