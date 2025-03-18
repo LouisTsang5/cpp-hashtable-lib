@@ -331,7 +331,7 @@ namespace HashTable
                 rehash(new_cap);
         }
 
-        // Shrint the table to the size that exactly fits all keys & values. Table grows on next insertion
+        // Shrink the table to the size that exactly fits all keys & values. Table grows on next insertion
         void shrink_to_fit() noexcept
         {
             // Calculate new capacity
