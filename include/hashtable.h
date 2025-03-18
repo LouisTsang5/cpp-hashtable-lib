@@ -110,10 +110,10 @@ namespace HashTable
                     while (m_cur < m_end && !m_cur->used())
                         m_cur += 1;
                 }
-                constexpr Slot &operator*() const noexcept
+                constexpr std::pair<K &, V &> operator*() const noexcept
                 {
                     assert(m_cur->used());
-                    return *m_cur;
+                    return {m_cur->key(), m_cur->val()};
                 }
                 constexpr bool operator==(const Inner &rhs) const noexcept { return m_cur == rhs.m_cur; }
                 constexpr bool operator!=(const Inner &rhs) const noexcept { return !(m_cur == rhs.m_cur); }
@@ -242,10 +242,10 @@ namespace HashTable
 
             // Iterate old table and insert to new table
             size_t new_size = 0;
-            for (Slot &other_s : other_table.key_values())
+            for (auto [key, val] : other_table.key_values())
             {
-                Slot &new_s = find_slot(m_hasher(other_s.ckey()), other_s.ckey());
-                new_s.emplace(std::move(other_s.key()), std::move(other_s.val()));
+                Slot &new_s = find_slot(m_hasher(key), key);
+                new_s.emplace(std::move(key), std::move(val));
                 new_size += 1;
             }
             m_size = new_size;

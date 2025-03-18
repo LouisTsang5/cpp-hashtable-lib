@@ -35,16 +35,16 @@ int main()
     }
 
     // Assert all keys & values can be found
-    for (const auto &slot : m.key_values())
+    for (const auto &[k, v] : m.key_values())
     {
         // Find ptr in vec
-        const auto ptr_key = std::find(vkey.begin(), vkey.end(), slot.ckey());
+        const auto ptr_key = std::find(vkey.begin(), vkey.end(), k);
         assert(ptr_key != vkey.cend());
 
         // Assert key & val are the same
         const ptrdiff_t pos = ptr_key - vkey.begin();
-        assert(vkey[pos] == slot.ckey());
-        assert(vval_after[pos] == slot.cval());
+        assert(vkey[pos] == k);
+        assert(vval_after[pos] == v);
 
         // Remove the element from the vector
         vkey.erase(vkey.begin() + pos);
