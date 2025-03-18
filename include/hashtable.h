@@ -99,16 +99,16 @@ namespace HashTable
 
                 constexpr void next() noexcept
                 {
-                    m_cur += 1;
-                    while (m_cur < m_end && !m_cur->used())
+                    do
+                    {
                         m_cur += 1;
+                    } while (m_cur < m_end && !m_cur->used());
                 }
 
             public:
-                constexpr Inner(Slot *c, Slot *e) noexcept : m_cur(c), m_end(e)
+                constexpr Inner(Slot *c, Slot *e) noexcept : m_cur(c - 1), m_end(e) // -1 from ptr because next() increments it by 1
                 {
-                    while (m_cur < m_end && !m_cur->used())
-                        m_cur += 1;
+                    next();
                 }
                 constexpr std::pair<K &, V &> operator*() const noexcept
                 {
