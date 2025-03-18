@@ -320,12 +320,14 @@ namespace HashTable
             return s.extract();
         }
 
-        // Shrint table to the size that barely fits all keys & values. The next insertion will trigger rehash
+        // Shrint the table to the size that exactly fits all keys & values. Table grows on next insertion
         void shrink_to_fit() noexcept
         {
             // Calculate new capacity
-            size_t old_cap = capacity();
-            size_t new_cap = static_cast<size_t>(std::ceil(static_cast<float>(m_size) / HASH_TABLE_MAX_LOAD_FACTOR)); // Round up to the nearest integer
+            const size_t old_cap = capacity();
+            const size_t new_cap = std::max(
+                static_cast<size_t>(std::ceil(static_cast<float>(m_size) / HASH_TABLE_MAX_LOAD_FACTOR)), // Round up to the nearest integer
+                HASH_TABLE_INIT_SIZE);                                                                   // Greater than the minimum size
 
             // rehash to new capacity
             if (new_cap != old_cap)
