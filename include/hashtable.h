@@ -320,6 +320,17 @@ namespace HashTable
             return s.extract();
         }
 
+        void reserve(size_t new_size) noexcept
+        {
+            const size_t new_cap = std::max(
+                static_cast<size_t>(std::ceil(static_cast<float>(new_size) / HASH_TABLE_MAX_LOAD_FACTOR)), // Round up to the nearest integer
+                HASH_TABLE_INIT_SIZE);
+
+            // Table can only grow
+            if (new_cap > capacity())
+                rehash(new_cap);
+        }
+
         // Shrint the table to the size that exactly fits all keys & values. Table grows on next insertion
         void shrink_to_fit() noexcept
         {
