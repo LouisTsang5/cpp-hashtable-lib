@@ -147,6 +147,7 @@ namespace HashTable
             size_t m_size;
 
         public:
+            constexpr InnerTable() noexcept : m_table(nullptr), m_size(0) {}
             constexpr InnerTable(size_t s) noexcept : m_table(std::make_unique<Slot[]>(s)), m_size(s)
             {
                 std::fill(m_table.get(), m_table.get() + m_size, Slot());
@@ -235,7 +236,7 @@ namespace HashTable
         void rehash(size_t new_cap) noexcept
         {
             // Make new table
-            InnerTable other_table = InnerTable(new_cap);
+            InnerTable other_table(new_cap);
 
             // Swap table
             std::swap(m_table, other_table);
@@ -254,7 +255,7 @@ namespace HashTable
 
     public:
         // ctors
-        HashTable() noexcept : m_table(HASH_TABLE_INIT_SIZE), m_size(0), m_occupancy(0) {}
+        constexpr HashTable() noexcept : m_size(0), m_occupancy(0) {}
 
         // getters
         [[nodiscard]] constexpr size_t capacity() const noexcept { return m_table.size(); }
@@ -267,9 +268,9 @@ namespace HashTable
         std::optional<V> emplace(KK &&key, VV &&val) noexcept
         {
             // Rehash if over load factor limit
-            if (load_factor(m_occupancy + 1, capacity()) >= HASH_TABLE_MAX_LOAD_FACTOR)
+            if (capacity() == 0 || load_factor(m_occupancy + 1, capacity()) >= HASH_TABLE_MAX_LOAD_FACTOR)
             {
-                size_t new_cap = static_cast<size_t>(static_cast<float>(capacity()) * HASH_TABLE_GROW_FACTOR);
+                size_t new_cap = std::max(static_cast<size_t>(static_cast<float>(capacity()) * HASH_TABLE_GROW_FACTOR), HASH_TABLE_INIT_SIZE);
                 rehash(new_cap);
             }
 
