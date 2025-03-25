@@ -147,10 +147,24 @@ namespace HashTable
             size_t m_size;
 
         public:
+            // ctors
             constexpr InnerTable() noexcept : m_table(nullptr), m_size(0) {}
             constexpr InnerTable(size_t s) noexcept : m_table(std::make_unique<Slot[]>(s)), m_size(s)
             {
                 std::fill(m_table.get(), m_table.get() + m_size, Slot());
+            }
+
+            // move operations
+            InnerTable(InnerTable &&other) noexcept : m_table(std::move(other.m_table)), m_size(other.m_size)
+            {
+                other.m_size = 0;
+            }
+            InnerTable &operator=(InnerTable &&other) noexcept
+            {
+                m_table = std::move(other.m_table);
+                m_size = other.m_size;
+                other.m_size = 0;
+                return *this;
             }
 
             [[nodiscard]] constexpr size_t size() const noexcept
@@ -256,6 +270,22 @@ namespace HashTable
     public:
         // ctors
         constexpr HashTable() noexcept : m_size(0), m_occupancy(0) {}
+
+        // move operations
+        HashTable(HashTable &&other) noexcept : m_table(std::move(other.m_table)), m_size(other.m_size), m_occupancy(other.m_occupancy)
+        {
+            other.m_size = 0;
+            other.m_occupancy = 0;
+        }
+        HashTable &operator=(HashTable &&other) noexcept
+        {
+            m_table = std::move(other.m_table);
+            m_size = other.m_size;
+            m_occupancy = other.m_occupancy;
+            other.m_size = 0;
+            other.m_occupancy = 0;
+            return *this;
+        }
 
         // getters
         [[nodiscard]] constexpr size_t capacity() const noexcept { return m_table.size(); }
