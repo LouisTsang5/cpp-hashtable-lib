@@ -262,6 +262,7 @@ namespace HashTable
         [[nodiscard]] constexpr size_t size() const noexcept { return m_size; }
         [[nodiscard]] constexpr size_t occupancy() const noexcept { return m_occupancy; }
         [[nodiscard]] constexpr KVIter key_values() noexcept { return m_table.key_values(); }
+        [[nodiscard]] constexpr bool empty() const noexcept { return m_size == 0; }
 
         // functions
         template <typename KK, typename VV>
