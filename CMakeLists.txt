@@ -41,6 +41,7 @@ if(RUN_TESTS)
     define_test(lookup_test)
     define_test(remove_test)
     define_test(move_test)
+    define_test(copy_test)
     define_test(size_test)
 endif()
 

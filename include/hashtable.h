@@ -154,6 +154,19 @@ namespace HashTable
                 std::fill(m_table.get(), m_table.get() + m_size, Slot());
             }
 
+            // copy operations
+            constexpr InnerTable(const InnerTable &other) noexcept : m_size(other.m_size)
+            {
+                m_table = std::make_unique<Slot[]>(m_size);
+                std::copy(other.m_table.get(), other.m_table.get() + m_size, m_table.get());
+            }
+            constexpr InnerTable &operator=(const InnerTable &other) noexcept
+            {
+                m_size = other.m_size;
+                m_table = std::make_unique<Slot[]>(m_size);
+                std::copy(other.m_table.get(), other.m_table.get() + m_size, m_table.get());
+            }
+
             // move operations
             InnerTable(InnerTable &&other) noexcept : m_table(std::move(other.m_table)), m_size(other.m_size)
             {
@@ -270,6 +283,15 @@ namespace HashTable
     public:
         // ctors
         constexpr HashTable() noexcept : m_size(0), m_occupancy(0) {}
+
+        // copy operations
+        HashTable(const HashTable &other) noexcept : m_size(other.m_size), m_occupancy(other.m_occupancy), m_table(other.m_table) {}
+        HashTable &operator=(const HashTable &other) noexcept
+        {
+            m_size = other.m_size;
+            m_occupancy = other.m_occupancy;
+            m_table = other.m_table;
+        }
 
         // move operations
         HashTable(HashTable &&other) noexcept : m_table(std::move(other.m_table)), m_size(other.m_size), m_occupancy(other.m_occupancy)
