@@ -27,24 +27,49 @@ int main()
     assert(old_map.empty());
     assert(old_map.capacity() == 0);
 
-    // Assert all keys & values can be found in the new map
-    for (const auto &[k, v] : new_map.key_values())
+    // Assert all keys & values cannot be found in the old map
+    auto vkey_old = vkey;
+    auto vval_old = vval;
+    for (const auto &[k, v] : old_map.key_values())
     {
         // Find ptr in vec
-        const auto ptr_key = std::find(vkey.begin(), vkey.end(), k);
-        assert(ptr_key != vkey.cend());
+        const auto ptr_key = std::find(vkey_old.begin(), vkey_old.end(), k);
+        assert(ptr_key != vkey_old.cend());
 
         // Assert key & val are the same
-        const ptrdiff_t pos = ptr_key - vkey.begin();
-        assert(vkey[pos] == k);
-        assert(vval[pos] == v);
+        const ptrdiff_t pos = ptr_key - vkey_old.begin();
+        assert(vkey_old[pos] == k);
+        assert(vval_old[pos] == v);
 
         // Remove the element from the vector
-        vkey.erase(vkey.begin() + pos);
-        vval.erase(vval.begin() + pos);
+        vkey_old.erase(vkey_old.begin() + pos);
+        vval_old.erase(vval_old.begin() + pos);
     }
 
     // Assert both vecs are empty
-    assert(vkey.empty());
-    assert(vval.empty());
+    assert(vkey_old.size() == vkey.size());
+    assert(vval_old.size() == vval.size());
+
+    // Assert all keys & values can be found in the new map
+    auto vkey_new = vkey;
+    auto vval_new = vval;
+    for (const auto &[k, v] : new_map.key_values())
+    {
+        // Find ptr in vec
+        const auto ptr_key = std::find(vkey_new.begin(), vkey_new.end(), k);
+        assert(ptr_key != vkey_new.cend());
+
+        // Assert key & val are the same
+        const ptrdiff_t pos = ptr_key - vkey_new.begin();
+        assert(vkey_new[pos] == k);
+        assert(vval_new[pos] == v);
+
+        // Remove the element from the vector
+        vkey_new.erase(vkey_new.begin() + pos);
+        vval_new.erase(vval_new.begin() + pos);
+    }
+
+    // Assert both vecs are empty
+    assert(vkey_new.empty());
+    assert(vval_new.empty());
 }
