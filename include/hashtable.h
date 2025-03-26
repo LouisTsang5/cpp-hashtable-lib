@@ -164,6 +164,7 @@ namespace HashTable
                 m_size = other.m_size;
                 m_table = std::make_unique<Slot[]>(m_size);
                 std::copy(other.m_table.get(), other.m_table.get() + m_size, m_table.get());
+                return *this;
             }
 
             // move operations
@@ -290,6 +291,7 @@ namespace HashTable
             m_size = other.m_size;
             m_occupancy = other.m_occupancy;
             m_table = other.m_table;
+            return *this;
         }
 
         // move operations
