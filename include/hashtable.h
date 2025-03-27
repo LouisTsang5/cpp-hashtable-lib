@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdint>
 #include <optional>
+#include <memory>
 #include <utility>
 
 namespace HashTable
